@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.17" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.17">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\BusinessLayer\StoreApp.Models\StoreApp.Models.csproj" />
+    <ProjectReference Include="..\..\BusinessLayer\StoreApp.Persister\StoreApp.Persister.csproj" />
+    <ProjectReference Include="..\..\DataLayer\StoreApp.DalSQL\StoreApp.DalSQL.csproj" />
+    <ProjectReference Include="..\..\DataLayer\StoreApp.Dal\StoreApp.Dal.csproj" />
+  </ItemGroup>
+
+</Project>

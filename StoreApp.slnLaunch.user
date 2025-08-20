@@ -1,0 +1,19 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "WebAPI\\StoreApp.WebAPI\\StoreApp.WebAPI.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "UI\\StoreApp.WPF\\StoreApp.WPF.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "UI\\StoreApp.MVCUI\\StoreApp.MVCUI.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

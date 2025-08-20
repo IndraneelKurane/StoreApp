@@ -1,0 +1,540 @@
+@model Bill
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Bill</h4>
+<hr />
+<div class="row">
+    <div class="col-12">
+        <form asp-action="Edit" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="BillNumber" class="control-label"></label>
+                <input asp-for="BillNumber" class="form-control" style="width: 30%;" />
+                <span asp-validation-for="BillNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="BillDate" class="control-label"></label>
+                <input asp-for="BillDate" class="form-control" style="width: 30%;" />
+                <span asp-validation-for="BillDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PartyId" class="control-label"></label>
+                <select asp-for="PartyId" class="form-control" asp-items="ViewBag.PartyId" style="width: 30%;"></select>
+            </div>
+            
+            <div class="form-group">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h5>Bill Items</h5>
+                    <button type="button" class="btn btn-secondary" id="addItemBtn">Add Item</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="billItemsTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 40%;">Item</th>
+                            <th style="width: 15%; text-align: right;">Quantity</th>
+                            <th style="width: 15%; text-align: right;">Price</th>
+                            <th style="width: 15%; text-align: right;">Amount</th>
+                            <th style="width: 15%;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="billItemsBody">
+                        @if (Model.BillItems != null && Model.BillItems.Any())
+                        {
+                            @for (int i = 0; i < Model.BillItems.Count; i++)
+                            {
+                                <tr class="bill-item-row" data-item-id="@Model.BillItems[i].Id">
+                                    <td style="width: 40%;">
+                                        <select name="BillItems[@i].ItemId" class="form-control item-select" asp-items="ViewBag.ItemId" asp-for="BillItems[@i].ItemId">
+                                            <option value="">Select Item</option>
+                                        </select>
+                                        <input type="hidden" name="BillItems[@i].Id" value="@Model.BillItems[i].Id" />
+                                        <input type="hidden" name="BillItems[@i].BillId" value="@Model.Id" />
+                                        <input type="hidden" name="BillItems[@i].IsDeleted" class="is-deleted-field" value="@Model.BillItems[i].IsDeleted.ToString().ToLower()" />
+                                    </td>
+                                    <td style="width: 15%;">
+                                        <input name="BillItems[@i].Quantity" type="number" step="0.1" class="form-control quantity-input" value="@Model.BillItems[i].Quantity" style="text-align: right;" />
+                                    </td>
+                                    <td style="width: 15%;">
+                                        <input name="BillItems[@i].Price" type="number" step="0.01" class="form-control price-input" value="@Model.BillItems[i].Price" style="text-align: right;" />
+                                    </td>
+                                    <td style="width: 15%;">
+                                        <input name="BillItems[@i].Amount" type="number" step="0.01" class="form-control amount-display" value="@Model.BillItems[i].Amount" readonly style="text-align: right;" />
+                                    </td>
+                                    <td style="width: 15%;">
+                                        <button type="button" class="btn btn-info btn-sm schedule-btn">Schedule</button>
+                                        <button type="button" class="btn btn-danger btn-sm delete-btn">Delete</button>
+                                        <button type="button" class="btn btn-success btn-sm undelete-btn" style="display:none;">Undelete</button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr class="bill-item-row">
+                                <td style="width: 40%;">
+                                    <select name="BillItems[0].ItemId" class="form-control item-select" asp-items="ViewBag.ItemId">
+                                        <option value="">Select Item</option>
+                                    </select>
+                                    <input type="hidden" name="BillItems[0].BillId" value="@Model.Id" />
+                                </td>
+                                <td style="width: 15%;">
+                                    <input name="BillItems[0].Quantity" type="number" step="0.1" class="form-control quantity-input" placeholder="0.0" style="text-align: right;" />
+                                </td>
+                                <td style="width: 15%;">
+                                    <input name="BillItems[0].Price" type="number" step="0.01" class="form-control price-input" placeholder="0.00" style="text-align: right;" />
+                                </td>
+                                <td style="width: 15%;">
+                                    <input name="BillItems[0].Amount" type="number" step="0.01" class="form-control amount-display" readonly style="text-align: right;" />
+                                </td>
+                                <td style="width: 15%;">
+                                    <button type="button" class="btn btn-info btn-sm schedule-btn">Schedule</button>
+                                    <button type="button" class="btn btn-danger btn-sm delete-btn">Delete</button>
+                                    <button type="button" class="btn btn-success btn-sm undelete-btn" style="display:none;">Undelete</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="form-group" style="text-align: right; margin-right: 15%;">
+                <label asp-for="ItemTotal" class="control-label"></label>
+                <input asp-for="ItemTotal" class="form-control" id="itemTotalInput" readonly style="text-align: right; width: 30%; display: inline-block;" />
+                <span asp-validation-for="ItemTotal" class="text-danger"></span>
+            </div>
+            <div class="form-group" style="text-align: right; margin-right: 15%;">
+                <label asp-for="Discount" class="control-label"></label>
+                <input asp-for="Discount" class="form-control" id="discountInput" type="number" step="0.01" style="text-align: right; width: 30%; display: inline-block;" />
+                <span asp-validation-for="Discount" class="text-danger"></span>
+            </div>
+            <div class="form-group" style="text-align: right; margin-right: 15%;">
+                <label asp-for="NetAmount" class="control-label"></label>
+                <input asp-for="NetAmount" class="form-control" id="netAmountInput" readonly style="text-align: right; width: 30%; display: inline-block;" />
+                <span asp-validation-for="NetAmount" class="text-danger"></span>
+            </div>
+            <!-- Hidden fields for delivery schedules -->
+            <div id="deliverySchedulesContainer"></div>
+            
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" id="saveBtn" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delivery Schedule Modal -->
+<div class="modal fade" id="scheduleModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="scheduleModalTitle">Delivery Schedule</h5>
+                <button type="button" class="close" data-bs-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group" style="display: flex; justify-content: space-between; align-items: center;">
+                    <h6 id="itemNameDisplay"></h6>
+                    <button type="button" class="btn btn-secondary" id="addScheduleBtn">Add Schedule</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="scheduleTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 50%;">Delivery Date</th>
+                                <th style="width: 30%; text-align: right;">Quantity</th>
+                                <th style="width: 20%;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scheduleTableBody">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="form-group mt-3">
+                    <label>Total Scheduled Quantity:</label>
+                    <input type="number" id="totalScheduledQty" class="form-control" readonly style="width: 200px; text-align: right;" />
+                </div>
+                <div id="scheduleValidationMessages" class="text-danger"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveScheduleBtn">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        let itemIndex = @(Model.BillItems?.Count ?? 1);
+        let currentBillItemIndex = -1;
+        let scheduleIndex = 0;
+        let billDate = '';
+        let originalScheduleData = [];
+        
+        function calculateAmount(row) {
+            const quantity = parseFloat(row.find('.quantity-input').val()) || 0;
+            const price = parseFloat(row.find('.price-input').val()) || 0;
+            const amount = quantity * price;
+            row.find('.amount-display').val(amount.toFixed(2));
+            calculateTotal();
+        }
+        
+        function calculateTotal() {
+            let total = 0;
+            $('#billItemsBody tr:not(.deleted)').each(function() {
+                const amount = parseFloat($(this).find('.amount-display').val()) || 0;
+                total += amount;
+            });
+            $('#itemTotalInput').val(total.toFixed(2));
+            calculateNetAmount();
+        }
+        
+        function calculateNetAmount() {
+            const itemTotal = parseFloat($('#itemTotalInput').val()) || 0;
+            const discount = parseFloat($('#discountInput').val()) || 0;
+            const netAmount = itemTotal - discount;
+            $('#netAmountInput').val(netAmount.toFixed(2));
+        }
+        
+        function calculateScheduleTotal() {
+            let total = 0;
+            $('#scheduleTableBody tr:not(.deleted)').each(function() {
+                const qty = parseFloat($(this).find('.schedule-qty-input').val()) || 0;
+                total += qty;
+            });
+            $('#totalScheduledQty').val(total.toFixed(1));
+            return total;
+        }
+        
+        function validateSchedule() {
+            const billItemQty = parseFloat($('#billItemsBody tr').eq(currentBillItemIndex).find('.quantity-input').val()) || 0;
+            const totalScheduled = calculateScheduleTotal();
+            const messages = [];
+            
+            if (totalScheduled !== billItemQty) {
+                messages.push('Total scheduled quantity must equal bill item quantity (' + billItemQty.toFixed(1) + ')');
+            }
+            
+            $('#scheduleTableBody tr:not(.deleted)').each(function() {
+                const dateInput = $(this).find('.schedule-date-input').val();
+                if (dateInput && new Date(dateInput) < new Date(billDate)) {
+                    messages.push('Delivery date must be greater than or equal to bill date');
+                }
+            });
+            
+            $('#scheduleValidationMessages').html(messages.join('<br>'));
+            return messages.length === 0;
+        }
+        
+        function loadExistingSchedules() {
+            @if (Model.BillItems != null)
+            {
+                @for (int i = 0; i < Model.BillItems.Count; i++)
+                {
+                    @if (Model.BillItems[i].DeliverySchedules != null && Model.BillItems[i].DeliverySchedules.Any())
+                    {
+                        <text>
+                        const scheduleData@(i) = [
+                            @foreach (var schedule in Model.BillItems[i].DeliverySchedules)
+                            {
+                                <text>{
+                                    id: '@schedule.Id',
+                                    deliveryDate: '@schedule.Date.ToString("yyyy-MM-dd")',
+                                    quantity: @schedule.Quantity,
+                                    isDeleted: false
+                                },</text>
+                            }
+                        ];
+                        $('#billItemsBody tr').eq(@i).data('deliverySchedules', scheduleData@(i));
+                        </text>
+                    }
+                }
+            }
+        }
+        
+        $(document).ready(function() {
+            billDate = $('#BillDate').val();
+            $('#BillNumber').focus();
+            
+            // Load existing delivery schedules
+            loadExistingSchedules();
+            
+            // Add new item row
+            $('#addItemBtn').click(function() {
+                const itemOptions = $('#billItemsBody tr:first .item-select').html();
+                const newRow = `
+                    <tr class="bill-item-row">
+                        <td style="width: 40%;">
+                            <select name="BillItems[${itemIndex}].ItemId" class="form-control item-select">
+                                ${itemOptions}
+                            </select>
+                            <input type="hidden" name="BillItems[${itemIndex}].BillId" value="${$('#Id').val()}" />
+                        </td>
+                        <td style="width: 15%;">
+                            <input name="BillItems[${itemIndex}].Quantity" type="number" step="0.1" class="form-control quantity-input" placeholder="0.0" style="text-align: right;" />
+                        </td>
+                        <td style="width: 15%;">
+                            <input name="BillItems[${itemIndex}].Price" type="number" step="0.01" class="form-control price-input" placeholder="0.00" style="text-align: right;" />
+                        </td>
+                        <td style="width: 15%;">
+                            <input name="BillItems[${itemIndex}].Amount" type="number" step="0.01" class="form-control amount-display" readonly style="text-align: right;" />
+                        </td>
+                        <td style="width: 15%;">
+                            <button type="button" class="btn btn-info btn-sm schedule-btn">Schedule</button>
+                            <button type="button" class="btn btn-danger btn-sm delete-btn">Delete</button>
+                            <button type="button" class="btn btn-success btn-sm undelete-btn" style="display:none;">Undelete</button>
+                        </td>
+                    </tr>`;
+                $('#billItemsBody').append(newRow);
+                $('#billItemsBody tr:last .item-select').focus();
+                itemIndex++;
+            });
+            
+            // Calculate amount on quantity or price change
+            $(document).on('input', '.quantity-input, .price-input', function() {
+                const row = $(this).closest('tr');
+                calculateAmount(row);
+            });
+            
+            // Delete/Undelete functionality
+            $(document).on('click', '.delete-btn', function() {
+                const row = $(this).closest('tr');
+                row.addClass('deleted').css('opacity', '0.5');
+                row.find('.is-deleted-field').val('true');
+                
+                // Mark all delivery schedules for this bill item as deleted
+                const scheduleData = row.data('deliverySchedules') || [];
+                scheduleData.forEach(function(schedule) {
+                    schedule.isDeleted = true;
+                });
+                row.data('deliverySchedules', scheduleData);
+                
+                $(this).hide();
+                $(this).siblings('.undelete-btn').show();
+                calculateTotal();
+            });
+            
+            $(document).on('click', '.undelete-btn', function() {
+                const row = $(this).closest('tr');
+                row.removeClass('deleted').css('opacity', '1');
+                row.find('.is-deleted-field').val('false');
+                
+                // Unmark delivery schedules (they can be individually managed again)
+                const scheduleData = row.data('deliverySchedules') || [];
+                scheduleData.forEach(function(schedule) {
+                    schedule.isDeleted = false;
+                });
+                row.data('deliverySchedules', scheduleData);
+                
+                $(this).hide();
+                $(this).siblings('.delete-btn').show();
+                calculateTotal();
+            });
+            
+            // Calculate net amount on discount change
+            $(document).on('input', '#discountInput', function() {
+                calculateNetAmount();
+            });
+            
+            // Schedule button click
+            $(document).on('click', '.schedule-btn', function() {
+                const row = $(this).closest('tr');
+                currentBillItemIndex = row.index();
+                const itemSelect = row.find('.item-select');
+                const itemName = itemSelect.find('option:selected').text();
+                
+                $('#itemNameDisplay').text('Item: ' + itemName);
+                $('#scheduleTableBody').empty();
+                scheduleIndex = 0;
+                
+                // Store original schedule data for cancel functionality
+                originalScheduleData = [];
+                
+                // Load existing schedules if any
+                const existingSchedules = row.data('deliverySchedules') || [];
+                existingSchedules.forEach(function(schedule) {
+                    if (!schedule.isDeleted) {
+                        const scheduleRow = `
+                            <tr class="schedule-row" data-schedule-id="${schedule.id || ''}">
+                                <td>
+                                    <input type="date" class="form-control schedule-date-input" value="${schedule.deliveryDate || ''}" />
+                                </td>
+                                <td>
+                                    <input type="number" step="0.1" class="form-control schedule-qty-input" value="${schedule.quantity || ''}" style="text-align: right;" />
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-danger btn-sm schedule-delete-btn">Delete</button>
+                                    <button type="button" class="btn btn-success btn-sm schedule-undelete-btn" style="display:none;">Undelete</button>
+                                </td>
+                            </tr>`;
+                        $('#scheduleTableBody').append(scheduleRow);
+                        originalScheduleData.push({...schedule});
+                        scheduleIndex++;
+                    }
+                });
+                
+                calculateScheduleTotal();
+                $('#scheduleModal').modal('show');
+            });
+            
+            // Add schedule row
+            $('#addScheduleBtn').click(function() {
+                const newScheduleRow = `
+                    <tr class="schedule-row" data-schedule-id="">
+                        <td>
+                            <input type="date" class="form-control schedule-date-input" />
+                        </td>
+                        <td>
+                            <input type="number" step="0.1" class="form-control schedule-qty-input" placeholder="0.0" style="text-align: right;" />
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-danger btn-sm schedule-delete-btn">Delete</button>
+                            <button type="button" class="btn btn-success btn-sm schedule-undelete-btn" style="display:none;">Undelete</button>
+                        </td>
+                    </tr>`;
+                $('#scheduleTableBody').append(newScheduleRow);
+                $('#scheduleTableBody tr:last .schedule-date-input').focus();
+                scheduleIndex++;
+            });
+            
+            // Schedule delete/undelete
+            $(document).on('click', '.schedule-delete-btn', function() {
+                const row = $(this).closest('tr');
+                row.addClass('deleted').css('opacity', '0.5');
+                $(this).hide();
+                $(this).siblings('.schedule-undelete-btn').show();
+                calculateScheduleTotal();
+                validateSchedule();
+            });
+            
+            $(document).on('click', '.schedule-undelete-btn', function() {
+                const row = $(this).closest('tr');
+                row.removeClass('deleted').css('opacity', '1');
+                $(this).hide();
+                $(this).siblings('.schedule-delete-btn').show();
+                calculateScheduleTotal();
+                validateSchedule();
+            });
+            
+            // Calculate schedule total on quantity change
+            $(document).on('input', '.schedule-qty-input', function() {
+                calculateScheduleTotal();
+                validateSchedule();
+            });
+            
+            // Validate on date change
+            $(document).on('change', '.schedule-date-input', function() {
+                validateSchedule();
+            });
+            
+            // Save schedule
+            $('#saveScheduleBtn').click(function() {
+                if (validateSchedule()) {
+                    // Store schedule data in memory
+                    const scheduleData = [];
+                    $('#scheduleTableBody tr').each(function() {
+                        const row = $(this);
+                        const scheduleId = row.data('schedule-id') || '';
+                        const deliveryDate = row.find('.schedule-date-input').val();
+                        const quantity = parseFloat(row.find('.schedule-qty-input').val()) || 0;
+                        const isDeleted = row.hasClass('deleted');
+                        
+                        scheduleData.push({
+                            id: scheduleId,
+                            deliveryDate: deliveryDate,
+                            quantity: quantity,
+                            isDeleted: isDeleted
+                        });
+                    });
+                    
+                    // Store in the bill item row
+                    $('#billItemsBody tr').eq(currentBillItemIndex).data('deliverySchedules', scheduleData);
+                    $('#scheduleModal').modal('hide');
+                    setTimeout(() => $('#addItemBtn').focus(), 100);
+                } else {
+                    // Validation failed, keep modal open
+                }
+            });
+            
+            // Cancel schedule changes
+            $(document).on('click', '[data-bs-dismiss="modal"]', function() {
+                // Restore original schedule data and close modal
+                $('#scheduleModal').modal('hide');
+                setTimeout(() => $('#billItemsBody tr').eq(currentBillItemIndex).find('.schedule-btn').focus(), 100);
+            });
+            
+            // Focus on Add Schedule button when modal is shown
+            $('#scheduleModal').on('shown.bs.modal', function() {
+                $('#addScheduleBtn').focus();
+            });
+            
+            // Update bill date reference when changed
+            $('#BillDate').change(function() {
+                billDate = $(this).val();
+            });
+            
+            // Handle Tab key on PartyId to move focus to last BillItem's item dropdown
+            $('#PartyId').keydown(function(e) {
+                if (e.key === 'Tab' && !e.shiftKey) {
+                    e.preventDefault();
+                    $('#billItemsBody tr:last .item-select').focus();
+                }
+            });
+            
+            // Handle form submission to include delivery schedules
+            $('form').submit(function(e) {
+                e.preventDefault();
+                
+                // Clear existing delivery schedules
+                $('#deliverySchedulesContainer').empty();
+                
+                // Add delivery schedules as hidden fields
+                $('#billItemsBody tr').each(function(billItemIndex) {
+                    const row = $(this);
+                    const billItemId = row.data('item-id') || 0;
+                    
+                    // Add BillId to each BillItem
+                    if (!row.find('input[name$=".BillId"]').length) {
+                        $('#deliverySchedulesContainer').append(
+                            `<input type="hidden" name="BillItems[${billItemIndex}].BillId" value="${$('#Id').val()}" />`
+                        );
+                    }
+                    
+                    const scheduleData = row.data('deliverySchedules') || [];
+                    let scheduleIndex = 0;
+                    scheduleData.forEach(function(schedule) {
+                        $('#deliverySchedulesContainer').append(
+                            `<input type="hidden" name="BillItems[${billItemIndex}].DeliverySchedules[${scheduleIndex}].Date" value="${schedule.deliveryDate}" />` +
+                            `<input type="hidden" name="BillItems[${billItemIndex}].DeliverySchedules[${scheduleIndex}].Quantity" value="${schedule.quantity}" />` +
+                            `<input type="hidden" name="BillItems[${billItemIndex}].DeliverySchedules[${scheduleIndex}].IsDeleted" value="${schedule.isDeleted ? 'true' : 'false'}" />` +
+                            (schedule.id ? `<input type="hidden" name="BillItems[${billItemIndex}].DeliverySchedules[${scheduleIndex}].Id" value="${schedule.id}" />` : '') +
+                            `<input type="hidden" name="BillItems[${billItemIndex}].DeliverySchedules[${scheduleIndex}].BillItemId" value="${billItemId}" />`
+                        );
+                        scheduleIndex++;
+                    });
+                });
+                
+                // Submit the form
+                this.submit();
+            });
+            
+
+        });
+    </script>
+}

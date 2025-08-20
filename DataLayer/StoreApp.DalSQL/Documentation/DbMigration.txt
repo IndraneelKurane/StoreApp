@@ -1,0 +1,3 @@
+dotnet ef migrations add Initial --context AppDbContext --project .\DataLayer\StoreApp.DalSQL\StoreApp.DalSQL.csproj --startup-project .\WebAPI\StoreApp.WebAPI\StoreApp.WebAPI.csproj
+
+dotnet ef database update Initial --context AppDbContext --project .\DataLayer\StoreApp.DalSQL\StoreApp.DalSQL.csproj --startup-project .\WebAPI\StoreApp.WebAPI\StoreApp.WebAPI.csproj

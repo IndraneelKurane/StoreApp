@@ -1,0 +1,171 @@
+@model Bill
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<h4>Bill</h4>
+<hr />
+<div class="row">
+    <div class="col-12">
+        <div class="form-group">
+            <label asp-for="BillNumber" class="control-label"></label>
+            <div class="form-control-plaintext" style="width: 30%;">@Model.BillNumber</div>
+        </div>
+        <div class="form-group">
+            <label asp-for="BillDate" class="control-label"></label>
+            <div class="form-control-plaintext" style="width: 30%;">@Model.BillDate.ToString("yyyy-MM-dd")</div>
+        </div>
+        <div class="form-group">
+            <label asp-for="PartyId" class="control-label"></label>
+            <div class="form-control-plaintext" style="width: 30%;">@ViewBag.PartyName</div>
+        </div>
+        
+        <div class="form-group">
+            <h5>Bill Items</h5>
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th style="width: 40%;">Item</th>
+                        <th style="width: 15%; text-align: right;">Quantity</th>
+                        <th style="width: 15%; text-align: right;">Price</th>
+                        <th style="width: 15%; text-align: right;">Amount</th>
+                        <th style="width: 15%;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.BillItems != null && Model.BillItems.Any())
+                    {
+                        @for (int i = 0; i < Model.BillItems.Count; i++)
+                        {
+                            <tr data-item-index="@i">
+                                <td style="width: 40%;">
+                                    <div class="form-control-plaintext">@ViewBag.ItemNames[i]</div>
+                                </td>
+                                <td style="width: 15%; text-align: right;">
+                                    <div class="form-control-plaintext">@Model.BillItems[i].Quantity</div>
+                                </td>
+                                <td style="width: 15%; text-align: right;">
+                                    <div class="form-control-plaintext">@Model.BillItems[i].Price.ToString("F2")</div>
+                                </td>
+                                <td style="width: 15%; text-align: right;">
+                                    <div class="form-control-plaintext">@Model.BillItems[i].Amount.ToString("F2")</div>
+                                </td>
+                                <td style="width: 15%;">
+                                    <button type="button" class="btn btn-info btn-sm schedule-btn" data-item-index="@i">Schedule</button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="form-group" style="text-align: right; margin-right: 15%;">
+            <label asp-for="ItemTotal" class="control-label"></label>
+            <div class="form-control-plaintext" style="width: 30%; display: inline-block; text-align: right;">@Model.ItemTotal.ToString("F2")</div>
+        </div>
+        <div class="form-group" style="text-align: right; margin-right: 15%;">
+            <label asp-for="Discount" class="control-label"></label>
+            <div class="form-control-plaintext" style="width: 30%; display: inline-block; text-align: right;">@Model.Discount.ToString("F2")</div>
+        </div>
+        <div class="form-group" style="text-align: right; margin-right: 15%;">
+            <label asp-for="NetAmount" class="control-label"></label>
+            <div class="form-control-plaintext" style="width: 30%; display: inline-block; text-align: right;">@Model.NetAmount.ToString("F2")</div>
+        </div>
+    </div>
+</div>
+
+<!-- Delivery Schedule Modal -->
+<div class="modal fade" id="scheduleModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delivery Schedule</h5>
+                <button type="button" class="close" data-bs-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h6 id="itemNameDisplay"></h6>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th style="width: 50%;">Delivery Date</th>
+                                <th style="width: 50%; text-align: right;">Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scheduleTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Schedule button click
+            $('.schedule-btn').click(function() {
+                const itemIndex = $(this).data('item-index');
+                const itemName = $(this).closest('tr').find('td:first div').text();
+                
+                $('#itemNameDisplay').text('Item: ' + itemName);
+                $('#scheduleTableBody').empty();
+                
+                // Load delivery schedules for this item
+                @if (Model!.BillItems != null)
+                {
+                    @for (int i = 0; i < Model.BillItems.Count; i++)
+                    {
+                        <text>
+                        if (itemIndex === @i) {
+                            @if (Model.BillItems[i].DeliverySchedules != null && Model.BillItems[i].DeliverySchedules.Any())
+                            {
+                                @foreach (var schedule in Model.BillItems[i].DeliverySchedules)
+                                {
+                                    <text>
+                                    $('#scheduleTableBody').append(`
+                                        <tr>
+                                            <td>@schedule.Date.ToString("yyyy-MM-dd")</td>
+                                            <td style="text-align: right;">@schedule.Quantity</td>
+                                        </tr>
+                                    `);
+                                    </text>
+                                }
+                            }
+                            else
+                            {
+                                <text>
+                                $('#scheduleTableBody').append(`
+                                    <tr>
+                                        <td colspan="2" class="text-center">No delivery schedules found</td>
+                                    </tr>
+                                `);
+                                </text>
+                            }
+                        }
+                        </text>
+                    }
+                }
+                
+                $('#scheduleModal').modal('show');
+            });
+        });
+    </script>
+}
