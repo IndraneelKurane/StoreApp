@@ -52,3 +52,13 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+/.vs/StoreApp/CopilotIndices/17.14.1091.29919/CodeChunks.db
+/.vs/StoreApp/CopilotIndices/17.14.1091.29919/CodeChunks.db-shm
+/.vs/StoreApp/CopilotIndices/17.14.1091.29919/CodeChunks.db-wal
+/.vs/StoreApp/CopilotIndices/17.14.1091.29919/SemanticSymbols.db
+/.vs/StoreApp/CopilotIndices/17.14.1091.29919/SemanticSymbols.db-shm
+/.vs/StoreApp/CopilotIndices/17.14.1091.29919/SemanticSymbols.db-wal
+/.vs/StoreApp/FileContentIndex/645381d1-127c-4ebb-bab7-fb983d679920.vsidx
+/.vs/StoreApp/v17/.suo
+/.vs/StoreApp/v17/DocumentLayout.backup.json
+/.vs/StoreApp/v17/DocumentLayout.json
