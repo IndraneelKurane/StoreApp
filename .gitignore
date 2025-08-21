@@ -62,3 +62,5 @@ nunit-*.xml
 /.vs/StoreApp/v17/.suo
 /.vs/StoreApp/v17/DocumentLayout.backup.json
 /.vs/StoreApp/v17/DocumentLayout.json
+/.vs/StoreApp/FileContentIndex
+/.vs/StoreApp/DesignTimeBuild/.dtbcache.v2
