@@ -15,12 +15,18 @@ public class ItemIndexViewModel : ObservableObject
     {
         _itemHttpService = itemHttpService;
         LoadItemsCommand = new RelayCommand(async () => await LoadItemsAsync());
+        //NewCommand = new RelayCommand(() => OnNewRequested?.Invoke());
         _ = LoadItemsAsync(); // Load items automatically when ViewModel is created
     }
 
     public ObservableCollection<Item> Items { get; } = new ObservableCollection<Item>();
 
     public ICommand LoadItemsCommand { get; }
+    public ICommand NewCommand { get; }
+    public ICommand EditCommand { get; }
+    public ICommand DeleteCommand { get; }
+
+    public event Action? OnNewRequested;
 
     private async Task LoadItemsAsync()
     {

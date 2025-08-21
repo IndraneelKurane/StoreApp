@@ -47,7 +47,7 @@ public class BillPersister : BusinessPersister<Bill>
             try
             {
                 var billEntity = (BillEntity)model;
-                await _billRepository.AddAsync(model);
+                await _billRepository.AddAsync(billEntity);
                 model.Id = billEntity.Id;
                 transaction.Complete();
             }
@@ -77,7 +77,6 @@ public class BillPersister : BusinessPersister<Bill>
         {
             try
             {
-                //_billRepository.DetachAllEntities();
                 foreach (var billItem in model.BillItems.Where(bi => bi.IsDeleted))
                 {
                     foreach (var deliverySchedule in billItem.DeliverySchedules)
@@ -89,7 +88,6 @@ public class BillPersister : BusinessPersister<Bill>
                 }
                 
                 model.BillItems = model.BillItems.Where(bi => !bi.IsDeleted).ToList();
-                //_billRepository.DetachAllEntities();
                 await _billRepository.UpdateAsync(model);
                 transaction.Complete();
             }
