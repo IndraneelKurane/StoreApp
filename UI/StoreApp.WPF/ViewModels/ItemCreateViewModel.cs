@@ -1,8 +1,7 @@
 using StoreApp.HttpHandler;
 using StoreApp.Models;
 using StoreApp.Models.Base;
-using StoreApp.WPF.RelayCommands;
-using StoreApp.WPF.ViewModels.Base;
+using StoreApp.WPF.Core;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 
@@ -22,7 +21,12 @@ public class ItemCreateViewModel : ObservableObject
         _locationHttpService = locationHttpService;
         _item = new Item();
 
-        CreateCommand = new RelayCommand(async () => await CreateItemAsync());
+        // Replace this line:
+        // CreateCommand = new RelayCommand(async () => await CreateItemAsync());
+
+        // With this:
+        CreateCommand = new RelayCommand(async _ => await CreateItemAsync());
+        //CreateCommand = new RelayCommand(async () => await CreateItemAsync());
         //BackCommand = new RelayCommand(() => OnBackRequested?.Invoke());
 
         _ = LoadDropdownDataAsync();
@@ -71,7 +75,8 @@ public class ItemCreateViewModel : ObservableObject
         // Fully qualify Mode if necessary, e.g., StoreApp.Models.Mode.Insert
         if (Item.Validate(Mode.Insert))
         {
-            object value = await _itemHttpService.PostAsync("Item", Item);
+            await _itemHttpService.CreateAsync("Item", Item);
+            //object value = await _itemHttpService.PostAsync("Item", Item);
             OnItemCreated?.Invoke();
         }
     }

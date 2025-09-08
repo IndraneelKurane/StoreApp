@@ -1,7 +1,6 @@
 using StoreApp.HttpHandler;
 using StoreApp.Models;
-using StoreApp.WPF.RelayCommands;
-using StoreApp.WPF.ViewModels.Base;
+using StoreApp.WPF.Core;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 
@@ -14,12 +13,15 @@ public class ItemIndexViewModel : ObservableObject
     public ItemIndexViewModel(ItemHttpService itemHttpService)
     {
         _itemHttpService = itemHttpService;
-        LoadItemsCommand = new RelayCommand(async () => await LoadItemsAsync());
-        //NewCommand = new RelayCommand(() => OnNewRequested?.Invoke());
+        LoadItemsCommand = new RelayCommand(async _ => await LoadItemsAsync());
+        NewCommand = new RelayCommand(async _ => await NewItemAsync());
+        //EditCommand = new RelayCommand(async () => await EditItemAsync(), () => Item != null);
         _ = LoadItemsAsync(); // Load items automatically when ViewModel is created
     }
 
+
     public ObservableCollection<Item> Items { get; } = new ObservableCollection<Item>();
+    public Item Item { get; private set; } = new Item();
 
     public ICommand LoadItemsCommand { get; }
     public ICommand NewCommand { get; }
@@ -37,4 +39,13 @@ public class ItemIndexViewModel : ObservableObject
             Items.Add(item);
         }
     }
+    private async Task NewItemAsync()
+    {
+        Item = new Item();
+        //await Task.CompletedTask;
+    }
+    //private async Task EditItemAsync(Item item)
+    //{
+    //    var items = await _itemHttpService.GetAllAsync("Item");
+    //}
 }

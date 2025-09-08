@@ -39,6 +39,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Folder Include="Fonts\" />
+	  <Folder Include="Images\" />
+	  <Folder Include="MVVM\Model\" />
+	  <Folder Include="MVVM\ViewModel\" />
+	  <Folder Include="MVVM\View\" />
+	  <Folder Include="Theme\" />
 	  <Folder Include="UserControls\Item\" />
 	  <Folder Include="ViewModels\Base\" />
 	</ItemGroup>
